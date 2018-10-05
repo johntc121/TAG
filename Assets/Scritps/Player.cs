@@ -13,8 +13,12 @@ public class Player : NetworkBehaviour {
     public float verticalInput;
     public float horizontalInput;
 
+    public GameController gameController;
+
     private void Start()
     {
+        gameController = GetComponent<GameController>();
+
         if (isLocalPlayer)
         {
             playerCamera.SetActive(true);

@@ -8,8 +8,16 @@ using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] private float speed;
     //public GameObject playerCamera;
+    [SerializeField] private float speed;
+
+    Animator animator;
+    const float k_Half = 0.5f;
+
+
+    public bool isIt = false;
+    public Canvas itUI;
+
 
     private void Start()
     {
@@ -22,6 +30,27 @@ public class PlayerController : NetworkBehaviour
         //{
         //    playerCamera.SetActive(false);
         //}
+
+        //TEST
+
+
+        Debug.Log(GameHandler.isSomeoneIt);
+
+        if(GameHandler.returnIt() == false)
+        {
+            GameHandler.isSomeoneIt = true;
+        }
+
+        Debug.Log(GameHandler.isSomeoneIt);
+
+
+
+        //END TEST
+
+        if (isLocalPlayer)
+        {
+            animator = GetComponent<Animator>();
+        }
     }
 
     private void Update()
@@ -31,6 +60,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         Move();
+        MakeIt();
         
     }
 
@@ -41,6 +71,24 @@ public class PlayerController : NetworkBehaviour
 
         transform.Translate(horzMove, 0, vertMove);
     }
+
+    void MakeIt()
+    {
+        if(isIt == false)
+        {
+            if (isLocalPlayer)
+            {
+                isIt = true;
+            }
+        }
+
+        if(isIt == true)
+        {
+            itUI.gameObject.SetActive(true);
+        }
+    }
+
+
 
 
 }
