@@ -10,8 +10,14 @@ public class PlayerController : NetworkBehaviour
 {
     //public GameObject playerCamera;
     [SerializeField] private float speed;
+    [SerializeField] private float jumpPower;
+    [SerializeField] public float fallMultipler = 2.5f;
+    [SerializeField] public float lowJumpMltp = 2f;
 
-    Animator animator;
+    private Rigidbody rb;
+
+
+    private Animator animator;
     const float k_Half = 0.5f;
 
 
@@ -43,6 +49,10 @@ public class PlayerController : NetworkBehaviour
 
         Debug.Log(GameHandler.isSomeoneIt);
 
+        rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+
+
 
 
         //END TEST
@@ -55,25 +65,53 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
+
+
         if (!isLocalPlayer)
         {
             return;
         }
         Move();
         MakeIt();
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            Jump();
+        }
+        //bJump();
         
     }
 
     void Move()
     {
-        float vertMove = Input.GetAxis("Vertical") * Time.deltaTime * speed;
-        float horzMove = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
+        
 
-        transform.Translate(horzMove, 0, vertMove);
+        float vertMove = Input.GetAxis("Vertical");
+        float horzMove = Input.GetAxis("Horizontal");
+
+        if(vertMove > 0)
+        {
+            animator.SetFloat("Speed", speed);
+        }
+        else
+        {
+            animator.SetFloat("Speed", 0);
+        }
+
+        transform.Translate(horzMove * Time.deltaTime * speed, 0, vertMove * Time.deltaTime * speed);
+
     }
+
+    void Jump()
+    {
+        rb.AddForce(Vector3.up * jumpPower);
+    }
+
+
 
     void MakeIt()
     {
+
         if(isIt == false)
         {
             if (isLocalPlayer)
@@ -85,6 +123,18 @@ public class PlayerController : NetworkBehaviour
         if(isIt == true)
         {
             itUI.gameObject.SetActive(true);
+        }
+    }
+
+    void bJump()
+    {
+        if (rb.velocity.y < 0)
+        {
+            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultipler - 1) * Time.deltaTime;
+        }
+        else if(rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        {
+            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMltp - 1) * Time.deltaTime;
         }
     }
 
