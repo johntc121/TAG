@@ -1,25 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class GameHandler{
+public class GameHandler : NetworkBehaviour{
 
-    public static bool isSomeoneIt = false;
 
-    // Use this for initialization
-    void Start()
+    private static bool isSomeoneIt = false;
+
+    private static float playerCount = 0;
+
+    
+
+
+    private void Start()
     {
-
+        playerCount = 0;
+        isSomeoneIt = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
 
-    }
-
-    public static bool returnIt()
+    public static bool ReturnIt()
     {
         return isSomeoneIt;
+    }
+
+    public static void SetIt()
+    {
+        isSomeoneIt = true;
+    }
+
+    public static float NumPlayers()
+    {
+    
+        return playerCount;
+    }
+
+    public static void AddPlayer()
+    {
+        playerCount++;
     }
 }

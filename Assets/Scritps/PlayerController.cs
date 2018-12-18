@@ -9,12 +9,16 @@ using UnityEngine.Networking;
 public class PlayerController : NetworkBehaviour
 {
     //public GameObject playerCamera;
-    [SerializeField] private float speed;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float walkSpeed = 3f;
+    [SerializeField] private float runSpeed = 7f;
     [SerializeField] private float jumpPower;
     [SerializeField] public float fallMultipler = 2.5f;
     [SerializeField] public float lowJumpMltp = 2f;
 
     private Rigidbody rb;
+
+    public GameObject camPivRayPoint;
 
 
     private Animator animator;
@@ -27,35 +31,8 @@ public class PlayerController : NetworkBehaviour
 
     private void Start()
     {
-        //if (isLocalPlayer)
-        //{
-        //    playerCamera.SetActive(true);
-        //}
-
-        //else
-        //{
-        //    playerCamera.SetActive(false);
-        //}
-
-        //TEST
-
-
-        Debug.Log(GameHandler.isSomeoneIt);
-
-        if(GameHandler.returnIt() == false)
-        {
-            GameHandler.isSomeoneIt = true;
-        }
-
-        Debug.Log(GameHandler.isSomeoneIt);
-
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
-
-
-
-        //END TEST
 
         if (isLocalPlayer)
         {
@@ -72,13 +49,15 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         Move();
-        MakeIt();
+
 
         if (Input.GetButtonDown("Jump"))
         {
             Jump();
         }
         //bJump();
+
+        TagPlayerRayCast();
         
     }
 
@@ -91,14 +70,22 @@ public class PlayerController : NetworkBehaviour
 
         if(vertMove > 0)
         {
-            animator.SetFloat("Speed", speed);
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                moveSpeed = runSpeed;
+            }
+            else
+            {
+                moveSpeed = walkSpeed;
+            }
+            animator.SetFloat("Speed", moveSpeed);
         }
         else
         {
             animator.SetFloat("Speed", 0);
         }
 
-        transform.Translate(horzMove * Time.deltaTime * speed, 0, vertMove * Time.deltaTime * speed);
+        transform.Translate(horzMove * Time.deltaTime * moveSpeed, 0, vertMove * Time.deltaTime * moveSpeed);
 
     }
 
@@ -109,25 +96,10 @@ public class PlayerController : NetworkBehaviour
 
 
 
-    void MakeIt()
-    {
-
-        if(isIt == false)
-        {
-            if (isLocalPlayer)
-            {
-                isIt = true;
-            }
-        }
-
-        if(isIt == true)
-        {
-            itUI.gameObject.SetActive(true);
-        }
-    }
+  
 
     void bJump()
-    {
+    { 
         if (rb.velocity.y < 0)
         {
             rb.velocity += Vector3.up * Physics.gravity.y * (fallMultipler - 1) * Time.deltaTime;
@@ -137,6 +109,23 @@ public class PlayerController : NetworkBehaviour
             rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMltp - 1) * Time.deltaTime;
         }
     }
+
+    void TagPlayerRayCast()
+    {
+        RaycastHit hit;
+        if(Physics.Raycast(camPivRayPoint.transform.position, camPivRayPoint.transform.forward, out hit, 50))
+        {
+            if (hit.transform.CompareTag("Player"))
+            {
+                Debug.Log("hit player");
+            }
+        }
+
+
+
+    }
+
+
 
 
 
